@@ -431,7 +431,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   be: {fileID: 1466304840}
   ve: {fileID: 1619803909}
-  howToTurn: 0
+  howToTurn: 1
   cornerTurnSpeed: 0.3
 --- !u!1 &963194225
 GameObject:
