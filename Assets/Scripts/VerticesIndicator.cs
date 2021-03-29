@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteAlways]
 public class VerticesIndicator : MonoBehaviour
 {
     public GameObject directionObject;
@@ -17,6 +18,10 @@ public class VerticesIndicator : MonoBehaviour
     void Start()
     {
         objects = new List<GameObject>();
+        foreach (var i in GetComponentsInChildren<DirectionObject>())
+        {
+            DestroyImmediate(i.gameObject);
+        }
         numObjects = Mathf.Min(bezierScript.points.Count, directions.Count);
         for (int i = 0; i < numObjects; i++)
         {
@@ -41,4 +46,6 @@ public class VerticesIndicator : MonoBehaviour
             obj.transform.parent = gameObject.transform;
         }
     }
+
+
 }

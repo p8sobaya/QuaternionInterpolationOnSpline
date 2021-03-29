@@ -11,31 +11,16 @@ public class Runner : MonoBehaviour
         SobayaSpecial = 1
     }
 
-    public BezierExample be;
     public VerticesIndicator ve;
     public EnumHowToTurn howToTurn; 
     public float cornerTurnSpeed;
-
-    List<Quaternion> towardsEnds;
-    List<Quaternion> towardsStarts;
 
     int numSegment;
 
     void Start()
     {
-        int n = numSegment = be.points.Count;
+        numSegment = ve.directions.Count;
 
-        towardsEnds = new List<Quaternion>();
-        towardsStarts = new List<Quaternion>();
-        for (int i = 0; i < numSegment; i++)
-        {
-            Quaternion start = Quaternion.Euler(ve.directions[i]);
-            Quaternion end = Quaternion.Euler(ve.directions[(i + 1) % n]);
-            Quaternion towardsEnd = FindRotation(Quaternion.Euler(ve.directions[(i - 1 + n) % n]), end, 10000);
-            Quaternion towardsStart = FindRotation(Quaternion.Euler(ve.directions[(i + 2) % n]), start, 10000);
-            towardsEnds.Add(towardsEnd);
-            towardsStarts.Add(towardsStart);
-        }
     }
 
     // Update is called once per frame
@@ -48,6 +33,7 @@ public class Runner : MonoBehaviour
 
         int n = numSegment;
         int i = idxSegment;
+        BezierExample be = GetComponent<BezierExample>();
 
         {
             Vector3 start = be.points[i];
@@ -70,12 +56,10 @@ public class Runner : MonoBehaviour
         {
             Quaternion start = Quaternion.Euler(ve.directions[i]);
             Quaternion end = Quaternion.Euler(ve.directions[(i + 1) % n]);
-            Quaternion towardsEnd = towardsEnds[i];
-            Quaternion towardsStart = towardsStarts[i];
+            Quaternion towardsEnd = end * Quaternion.Inverse(Quaternion.Euler(ve.directions[(i - 1 + n) % n]));
+            Quaternion towardsStart = start * Quaternion.Inverse(Quaternion.Euler(ve.directions[(i + 2) % n]));
 
 
-            //Quaternion towardsEnd = end * Quaternion.Inverse(Quaternion.Euler(ve.directions[(i - 1 + n) % n]));
-            //Quaternion towardsStart = start * Quaternion.Inverse(Quaternion.Euler(ve.directions[(i + 2) % n]));
             Quaternion startTang = Quaternion.SlerpUnclamped( start, start *towardsEnd ,cornerTurnSpeed);
             Quaternion endTang = Quaternion.SlerpUnclamped(end, end * towardsStart, cornerTurnSpeed);
 
@@ -97,38 +81,5 @@ public class Runner : MonoBehaviour
 
     }
 
-    public Quaternion FindRotation(Quaternion q0, Quaternion q1, int iteration)
-    {
-        float epsilon = 0.001f;
-        Quaternion nowQuat = Quaternion.identity;
-        for (int i = 0; i < iteration; i++)
-        {
-            float delta = 360f / Mathf.Pow(i+1, 1.2f);
-            Quaternion initNext1 = nowQuat;
-            Quaternion initNext2 = nowQuat;
-            Quaternion initNext3 = nowQuat;
-            initNext1 *= Quaternion.AngleAxis(delta * Random.value, Random.onUnitSphere);
-            initNext2 *= Quaternion.AngleAxis(delta * Random.value, Random.onUnitSphere);
-            initNext3 *= Quaternion.AngleAxis(delta * Random.value, Random.onUnitSphere);
-            float diff1 = Quaternion.Angle(q1, q0 * initNext1);
-            float diff2 = Quaternion.Angle(q1, q0 * initNext2);
-            float diff3 = Quaternion.Angle(q1, q0 * initNext3);
-            float diff0 = Quaternion.Angle(q1, q0 * nowQuat);
-            float minDiff = Mathf.Min(diff1,diff2,diff3,diff0);
-            if (minDiff == diff1) nowQuat = initNext1;
-            if (minDiff == diff2) nowQuat = initNext2;
-            if (minDiff == diff3) nowQuat = initNext3;
 
-            if(i%10==0) Debug1s("        " +i + " : " + nowQuat + "   diff:" + minDiff);
-
-            if (minDiff < epsilon) break;
-        }
-        return nowQuat;
-    }
-
-    public void Debug1s(object s)
-    {
-        if (Time.frameCount % 30 == 0) Debug.Log("" + Time.frameCount/30 + " : " + s);
-
-    }
 }
