@@ -60,8 +60,8 @@ public class Runner : MonoBehaviour
             Quaternion towardsStart = start * Quaternion.Inverse(Quaternion.Euler(ve.directions[(i + 2) % n]));
 
 
-            Quaternion startTang = Quaternion.SlerpUnclamped( start, start *towardsEnd ,cornerTurnSpeed);
-            Quaternion endTang = Quaternion.SlerpUnclamped(end, end * towardsStart, cornerTurnSpeed);
+            Quaternion startTang = Quaternion.SlerpUnclamped( start, towardsEnd *start ,cornerTurnSpeed);
+            Quaternion endTang = Quaternion.SlerpUnclamped(end, towardsStart * end, cornerTurnSpeed);
 
             Quaternion quat11 = Quaternion.Slerp(start, startTang, phaseInSegment);
             Quaternion quat12 = Quaternion.Slerp(startTang, endTang, phaseInSegment);
